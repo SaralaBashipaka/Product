@@ -1,0 +1,80 @@
+				Date : 22-Jun-21
+				Project 7:30 AM
+				  Mr. RAGHU
+	----------------------------------------------------------------
+			Grn Module with Integrations
+
+			     1...1
+			Grn------<> PurchaseOrder [where status='INVOICED']
+
+			     1...1
+			Parent---<>Child
+
+---Integration steps-------------------------------
+1. Parent Model [Grn]
+
+> Create HAS-A Variable
+> Apply Multiplicity annotation
+> Provide Join column
+
+--Grn.java--
+//1...1
+@ManyToOne
+@JoinColumn(name="po_id_fk_col",unique = true)
+private PurchaseOrder po; //HAS-A
+
+------------------------------------------
+2. Child Repository [PurchaseOrder]
+*) Define one custom method that gets id,code
+
+--PurchaseOrderRepository.java---
+
+@Query("SELECT id,orderCode FROM PurchaseOrder WHERE status=:status")
+List<Object[]> getPoIdAndCodesByStatus(String status);
+
+________________________________________________________________________
+3. Child Service [PurchaseOrder]
+
+---Service Interface-----------------------------------
+   Map<Integer,String> getPoIdAndCodesByStatus(String status);
+
+---Service Impl--------------------------------------
+ public Map<Integer, String> getPoIdAndCodesByStatus(String status) {
+	List<Object[]> list = repo.getPoIdAndCodesByStatus(status);
+	return MyAppUtil.convertListToMap(list);
+ }
+
+________________________________________________________________________
+4. Parent Controller [GrnController]
+
+   GrnController---<>IPurchaseOrderService
+
+   define one common method that will send pos to UI for dynmic dropdown
+
+
+5. Parent UI [Grn Register]
+
+ <select name="hasAVariableName.id" id="">
+   <option value="">--SELECT--</option>
+   <option th:each="ob:${modelKeyName}" 
+           th:value="${ob.key}"
+	   th:text="${ob.value}">
+   </option>
+ </select>
+===================================================================
+class Address { ... }
+class Employee{
+  int eid;
+  String ename;
+
+  @ManyToOne(caseCade=___)
+  Address addr;
+}
+
+Address a = new Address(....);
+Employee e = new Employee(..);
+e.setAddr(a);
+
+//addrRepo.save(a);
+empRepo.save(e);
+========================================================================
